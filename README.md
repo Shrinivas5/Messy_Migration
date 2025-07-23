@@ -7,6 +7,7 @@ A secure, production-ready Flask API for user management that has been completel
 \`\`\`bash
 # Clone the repository
 git clone <repository-url>
+
 cd messy-migration
 
 # Install dependencies
