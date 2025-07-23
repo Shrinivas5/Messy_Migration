@@ -6,7 +6,7 @@ A secure, production-ready Flask API for user management that has been completel
 
 \`\`\`bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Shrinivas5/Messy_Migration
 
 cd messy-migration
 
