@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management System</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+h1, h2 {
+    color: #333;
+}
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+}
+.tab {
+    padding: 15px 20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-width: 120px;
+    text-align: center;
+}
+.tab:hover {
+    background-color: #e9ecef;
+}
+.tab.active {
+    border-bottom-color: #007bff;
+    color: #007bff;
+    background-color: white;
+    font-weight: bold;
+}
+.tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background-color: white;
+    min-height: 400px;
+}
+.tab-content.active {
+    display: block;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+input, button {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+input {
+    width: 100%;
+    max-width: 300px;
+    transition: border-color 0.3s ease;
+}
+input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+    border: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #0056b3;
+}
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+.btn-danger {
+    background-color: #dc3545;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+.btn-secondary {
+    background-color: #6c757d;
+}
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 13px;
+}
+.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+.user-list {
+    display: grid;
+    gap: 15px;
+    margin-top: 20px;
+}
+.user-item {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: box-shadow 0.3s ease;
+}
+.user-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.user-info h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 18px;
+}
+.user-info p {
+    margin: 0 0 4px 0;
+    color: #666;
+    font-size: 14px;
+}
+.user-actions button {
+    margin-left: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+.credentials-box {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 20px;
+}
+.credentials-box h3 {
+    margin-top: 0;
+    color: #495057;
+}
+.credentials-box p {
+    margin: 5px 0;
+    font-family: monospace;
+    background-color: white;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .tabs {
+        flex-direction: column;
+    }
+    .tab {
+        min-width: auto;
+        width: 100%;
+    }
+    .user-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .user-actions {
+        margin-top: 10px;
+        width: 100%;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 User Management System</h1>
+        <p>Refactored Flask API - Test Interface</p>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('users')">👥 All Users</button>
+            <button class="tab" onclick="showTab('create')">➕ Create User</button>
+            <button class="tab" onclick="showTab('search')">🔍 Search</button>
+            <button class="tab" onclick="showTab('login')">🔐 Login</button>
+        </div>
+
+        <!-- All Users Tab -->
+        <div id="users" class="tab-content active">
+            <h2>👥 All Users</h2>
+            <button onclick="loadUsers()">🔄 Load Users</button>
+            <div id="usersList" class="user-list"></div>
+            <div id="usersResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Create User Tab -->
+        <div id="create" class="tab-content">
+            <h2>➕ Create New User</h2>
+            <form onsubmit="createUser(event)">
+                <div class="form-group">
+                    <label for="createName">👤 Name:</label>
+                    <input type="text" id="createName" required placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label for="createEmail">📧 Email:</label>
+                    <input type="email" id="createEmail" required placeholder="Enter email address">
+                </div>
+                <div class="form-group">
+                    <label for="createPassword">🔒 Password:</label>
+                    <input type="password" id="createPassword" required minlength="6" placeholder="Enter password (min 6 chars)">
+                </div>
+                <button type="submit">✅ Create User</button>
+            </form>
+            <div id="createResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Search Users Tab -->
+        <div id="search" class="tab-content">
+            <h2>🔍 Search Users</h2>
+            <div class="form-group">
+                <label for="searchName">🔎 Search by Name:</label>
+                <input type="text" id="searchName" placeholder="Enter name to search">
+            </div>
+            <button onclick="searchUsers()">🔍 Search</button>
+            <button onclick="clearSearch()" class="btn-secondary">🗑️ Clear</button>
+            <div id="searchList" class="user-list"></div>
+            <div id="searchResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Login Tab -->
+        <div id="login" class="tab-content">
+            <h2>🔐 User Login</h2>
+            <form onsubmit="loginUser(event)">
+                <div class="form-group">
+                    <label for="loginEmail">📧 Email:</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">🔒 Password:</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit">🔐 Login</button>
+            </form>
+            <div id="loginResult" class="result" style="display: none;"></div>
+            
+            <div class="credentials-box">
+                <h3>🧪 Test Credentials:</h3>
+                <p><strong>📧 Email:</strong> john@example.com <strong>🔒 Password:</strong> password123</p>
+                <p><strong>📧 Email:</strong> jane@example.com <strong>🔒 Password:</strong> secret456</p>
+                <p><strong>📧 Email:</strong> bob@example.com <strong>🔒 Password:</strong> qwerty789</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const API_BASE = 'http://127.0.0.1:5000';
+
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabName).classList.add('active');
+    
+    // Add active class to clicked tab
+    document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+}
+
+function showResult(elementId, message, isError = false) {
+    const element = document.getElementById(elementId);
+    element.textContent = typeof message === 'object' ? JSON.stringify(message, null, 2) : message;
+    element.className = `result ${isError ? 'error' : 'success'}`;
+    element.style.display = 'block';
+}
+
+async function loadUsers() {
+    const loadButton = document.querySelector('button[onclick="loadUsers()"]');
+    loadButton.disabled = true;
+    loadButton.textContent = '⏳ Loading...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/users`);
+        const users = await response.json();
+        
+        if (response.ok) {
+            displayUsers(users, 'usersList');
+            showResult('usersResult', `✅ Loaded ${users.length} users successfully`);
+        } else {
+            showResult('usersResult', `❌ ${users.error || 'Failed to load users'}`, true);
+        }
+    } catch (error) {
+        showResult('usersResult', `🌐 Network error: ${error.message}`, true);
+    } finally {
+        loadButton.disabled = false;
+        loadButton.textContent = '🔄 Load Users';
+    }
+}
+
+function displayUsers(users, containerId) {
+    const container = document.getElementById(containerId);
+    
+    if (users.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>📭 No users found.</p></div>';
+        return;
+    }
+    
+    container.innerHTML = users.map(user => `
+        <div class="user-item">
+            <div class="user-info">
+                <h4>👤 ${user.name}</h4>
+                <p><strong>📧 Email:</strong> ${user.email}</p>
+                <p><strong>🆔 ID:</strong> ${user.id}</p>
+                <p><strong>📅 Created:</strong> ${new Date(user.created_at).toLocaleString()}</p>
+            </div>
+            <div class="user-actions">
+                <button onclick="editUser(${user.id}, '${user.name.replace(/'/g, "\\'")}', '${user.email}')" class="btn-secondary">✏️ Edit</button>
+                <button onclick="deleteUser(${user.id})" class="btn-danger">🗑️ Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function createUser(event) {
+    event.preventDefault();
+    
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = '⏳ Creating...';
+    
+    const userData = {
+        name: document.getElementById('createName').value,
+        email: document.getElementById('createEmail').value,
+        password: document.getElementById('createPassword').value
+    };
+
+    try {
+        const response = await fetch(`${API_BASE}/users`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            showResult('createResult', `✅ User created successfully! ID: ${result.id}`);
+            document.querySelector('#create form').reset();
+        } else {
+            showResult('createResult', `❌ ${result.error || 'Failed to create user'}`, true);
+        }
+    } catch (error) {
+        showResult('createResult', `🌐 Network error: ${error.message}`, true);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = '✅ Create User';
+    }
+}
+
+async function searchUsers() {
+    const searchName = document.getElementById('searchName').value.trim();
+    
+    if (!searchName) {
+        showResult('searchResult', '⚠️ Please enter a name to search', true);
+        return;
+    }
+
+    const searchButton = document.querySelector('button[onclick="searchUsers()"]');
+    searchButton.disabled = true;
+    searchButton.textContent = '⏳ Searching...';
+
+    try {
+        const response = await fetch(`${API_BASE}/search?name=${encodeURIComponent(searchName)}`);
+        const users = await response.json();
+        
+        if (response.ok) {
+            displayUsers(users, 'searchList');
+            showResult('searchResult', `🔍 Found ${users.length} users matching "${searchName}"`);
+        } else {
+            showResult('searchResult', `❌ ${users.error || 'Search failed'}`, true);
+        }
+    } catch (error) {
+        showResult('searchResult', `🌐 Network error: ${error.message}`, true);
+    } finally {
+        searchButton.disabled = false;
+        searchButton.textContent = '🔍 Search';
+    }
+}
+
+function clearSearch() {
+    document.getElementById('searchName').value = '';
+    document.getElementById('searchList').innerHTML = '';
+    document.getElementById('searchResult').style.display = 'none';
+}
+
+async function loginUser(event) {
+    event.preventDefault();
+    
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = '⏳ Logging in...';
+    
+    const loginData = {
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+    };
+
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginData)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            showResult('loginResult', `✅ Login successful! User ID: ${result.user_id}`);
+        } else {
+            showResult('loginResult', `❌ ${result.error || 'Login failed'}`, true);
+        }
+    } catch (error) {
+        showResult('loginResult', `🌐 Network error: ${error.message}`, true);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = '🔐 Login';
+    }
+}
+
+async function editUser(id, currentName, currentEmail) {
+    const newName = prompt('✏️ Enter new name:', currentName);
+    if (newName === null) return;
+    
+    const newEmail = prompt('📧 Enter new email:', currentEmail);
+    if (newEmail === null) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/user/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: newName,
+                email: newEmail
+            })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            showResult('usersResult', `✅ User ${id} updated successfully`);
+            loadUsers(); // Reload the users list
+        } else {
+            showResult('usersResult', `❌ ${result.error || 'Failed to update user'}`, true);
+        }
+    } catch (error) {
+        showResult('usersResult', `🌐 Network error: ${error.message}`, true);
+    }
+}
+
+async function deleteUser(id) {
+    if (!confirm(`🗑️ Are you sure you want to delete user ${id}?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/user/${id}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            showResult('usersResult', `✅ User ${id} deleted successfully`);
+            loadUsers(); // Reload the users list
+        } else {
+            showResult('usersResult', `❌ ${result.error || 'Failed to delete user'}`, true);
+        }
+    } catch (error) {
+        showResult('usersResult', `🌐 Network error: ${error.message}`, true);
+    }
+}
+
+// Load users when page loads
+window.onload = function() {
+    loadUsers();
+};
+    </script>
+</body>
+</html>
